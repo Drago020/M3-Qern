@@ -15,7 +15,6 @@
   --muted:#5F5F5F;
   --accent:#6B6B6B;
   --border:#E0E0E0;
-  --radius:18px;
 }
 
 body.dark{
@@ -60,21 +59,21 @@ button{
   height:100vh;
 }
 
-.sidebar{
-  background:var(--card);
-  padding:12px;
-  border-right:1px solid var(--border);
-}
-
+/* CHAT */
 .chat{
   display:flex;
   flex-direction:column;
+  height:100%;
 }
 
+/* 🔥 IMPORTANT FIX */
 .messages{
   flex:1;
   padding:14px;
   overflow-y:auto;
+  scroll-behavior:smooth; /* smooth scrolling */
+  display:flex;
+  flex-direction:column;
 }
 
 .msg{
@@ -85,10 +84,17 @@ button{
   white-space:pre-wrap;
 }
 
-.user{background:#E6E6E6;margin-left:auto;}
+.user{
+  background:#E6E6E6;
+  margin-left:auto;
+}
+
 body.dark .user{background:#2C2C2C;}
 
-.ai{background:#F3F3F3;}
+.ai{
+  background:#F3F3F3;
+}
+
 body.dark .ai{background:#262626;}
 
 .input-area{
@@ -121,17 +127,13 @@ input{
   border-radius:16px;
   width:320px;
 }
-
-@media(max-width:900px){
-  .container{grid-template-columns:1fr;}
-}
 </style>
 </head>
 
 <body>
 
 <header>
-  <div>AgentFlow AI ⚡</div>
+  <div>AgentFlow AI</div>
   <div>
     <button onclick="toggleDark()">🌙</button>
     <button onclick="openSettings()">⚙️</button>
@@ -139,10 +141,6 @@ input{
 </header>
 
 <div class="container">
-
-<div class="sidebar">
-  <h3>AI Agents</h3>
-</div>
 
 <div class="chat">
 
@@ -164,16 +162,8 @@ input{
 <h3>Settings</h3>
 <br>
 
-<label>OpenRouter API Key</label>
-<input id="apiKey" style="width:100%;margin-top:6px;margin-bottom:10px;">
-
-<label>Model</label>
-<select id="model" style="width:100%;margin-bottom:10px;">
-  <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
-  <option value="anthropic/claude-3.5-sonnet">Claude 3.5</option>
-  <option value="google/gemini-flash-1.5">Gemini Flash</option>
-  <option value="deepseek/deepseek-chat">DeepSeek</option>
-</select>
+<input id="apiKey" placeholder="OpenRouter API Key" style="width:100%;padding:10px;margin-bottom:10px;">
+<input id="model" placeholder="model" style="width:100%;padding:10px;margin-bottom:10px;">
 
 <button onclick="saveSettings()">Save</button>
 <button onclick="closeSettings()" style="background:#777">Close</button>
@@ -185,40 +175,50 @@ input{
 
 let messages = [];
 
-function addMsg(text, type){
-  const div = document.createElement("div");
-  div.className = "msg " + type;
-  div.innerText = text;
+/* ================= SCROLL FIX ================= */
+function scrollToBottom(){
+  const box = document.getElementById("messages");
+  box.scrollTop = box.scrollHeight;
+}
+
+/* ================= UI ================= */
+
+function addMsg(text,type){
+  const div=document.createElement("div");
+  div.className="msg "+type;
+  div.innerText=text;
   document.getElementById("messages").appendChild(div);
+
+  scrollToBottom(); // 🔥 ALWAYS KEEP BOTTOM
   return div;
 }
 
-/* ---------------- STREAMING SEND ---------------- */
+/* ================= STREAMING ================= */
 
 async function send(){
 
-const input = document.getElementById("input");
-const text = input.value.trim();
+const input=document.getElementById("input");
+const text=input.value.trim();
 if(!text) return;
 
 input.value="";
 
 addMsg(text,"user");
 
-const key = localStorage.getItem("or_key");
-const model = localStorage.getItem("model") || "openai/gpt-4o-mini";
+const key=localStorage.getItem("or_key");
+const model=localStorage.getItem("model") || "openai/gpt-4o-mini";
 
 if(!key){
   addMsg("Add API key in settings","ai");
   return;
 }
 
-/* AI message container (we will stream into it) */
+/* AI placeholder */
 const aiDiv = addMsg("...", "ai");
 
 try{
 
-const res = await fetch("https://openrouter.ai/api/v1/chat/completions",{
+const res=await fetch("https://openrouter.ai/api/v1/chat/completions",{
 method:"POST",
 headers:{
 "Authorization":"Bearer "+key,
@@ -226,55 +226,51 @@ headers:{
 },
 body:JSON.stringify({
 model:model,
-stream:true,   // ⭐ IMPORTANT
-messages:[
-{
-role:"user",
-content:text
-}
-]
+stream:true,
+messages:[{role:"user",content:text}]
 })
 });
 
-const reader = res.body.getReader();
-const decoder = new TextDecoder();
+const reader=res.body.getReader();
+const decoder=new TextDecoder();
 
-let fullText = "";
+let full="";
 
 while(true){
-  const {value, done} = await reader.read();
+  const {value,done}=await reader.read();
   if(done) break;
 
-  const chunk = decoder.decode(value);
-  const lines = chunk.split("\n");
+  const chunk=decoder.decode(value);
+  const lines=chunk.split("\n");
 
   for(let line of lines){
     if(line.startsWith("data: ")){
-      const data = line.replace("data: ","");
+      const data=line.replace("data: ","");
 
-      if(data === "[DONE]") continue;
+      if(data==="[DONE]") continue;
 
       try{
-        const json = JSON.parse(data);
-        const token = json.choices?.[0]?.delta?.content;
+        const json=JSON.parse(data);
+        const token=json.choices?.[0]?.delta?.content;
 
         if(token){
-          fullText += token;
-          aiDiv.innerText = fullText;
-        }
+          full+=token;
+          aiDiv.innerText=full;
 
+          scrollToBottom(); // 🔥 STREAM SCROLL FIX
+        }
       }catch(e){}
     }
   }
 }
 
 }catch(e){
-aiDiv.innerText = "Stream error";
+aiDiv.innerText="Error";
 }
 
 }
 
-/* ---------------- SETTINGS ---------------- */
+/* ================= SETTINGS ================= */
 
 function openSettings(){
   document.getElementById("modal").style.display="flex";
@@ -285,10 +281,12 @@ function closeSettings(){
 }
 
 function saveSettings(){
-  localStorage.setItem("or_key", document.getElementById("apiKey").value);
-  localStorage.setItem("model", document.getElementById("model").value);
+  localStorage.setItem("or_key",document.getElementById("apiKey").value);
+  localStorage.setItem("model",document.getElementById("model").value);
   closeSettings();
 }
+
+/* ================= DARK ================= */
 
 function toggleDark(){
   document.body.classList.toggle("dark");
@@ -297,4 +295,4 @@ function toggleDark(){
 </script>
 
 </body>
-  </html>
+</html>
