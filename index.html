@@ -12,21 +12,24 @@
   --bg:#F5F5F5;
   --card:#FFFFFF;
   --text:#1C1C1C;
-  --muted:#5F5F5F;
-  --accent:#6B6B6B;
   --border:#E0E0E0;
+  --accent:#6B6B6B;
 }
 
 body.dark{
   --bg:#121212;
   --card:#1E1E1E;
   --text:#F1F1F1;
-  --muted:#A0A0A0;
-  --accent:#8A8A8A;
   --border:#2A2A2A;
+  --accent:#8A8A8A;
 }
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:Inter;}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Inter, sans-serif;
+}
 
 body{
   background:var(--bg);
@@ -36,14 +39,17 @@ body{
   flex-direction:column;
 }
 
+/* HEADER */
 header{
   padding:14px;
   display:flex;
   justify-content:space-between;
+  align-items:center;
   background:var(--card);
   border-bottom:1px solid var(--border);
 }
 
+/* BUTTON */
 button{
   padding:10px 12px;
   border:none;
@@ -53,54 +59,73 @@ button{
   cursor:pointer;
 }
 
+/* MAIN LAYOUT */
 .container{
-  display:grid;
-  grid-template-columns:260px 1fr;
-  height:100vh;
+  flex:1;
+  display:flex;
+  justify-content:center;   /* 🔥 centers chat */
+  align-items:stretch;
+  padding:14px;
 }
 
-/* CHAT */
+/* CHAT WRAPPER */
 .chat{
+  width:100%;
+  max-width:900px;          /* 🔥 prevents weird shrinking */
   display:flex;
   flex-direction:column;
-  height:100%;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
 }
 
-/* 🔥 IMPORTANT FIX */
+/* MESSAGES */
 .messages{
   flex:1;
   padding:14px;
   overflow-y:auto;
-  scroll-behavior:smooth; /* smooth scrolling */
   display:flex;
   flex-direction:column;
+  gap:10px;                /* better spacing */
+  scroll-behavior:smooth;
 }
 
+/* MESSAGE BUBBLES */
 .msg{
-  max-width:75%;
   padding:10px 12px;
   border-radius:12px;
-  margin-bottom:10px;
+  max-width:75%;
   white-space:pre-wrap;
+  word-wrap:break-word;
 }
 
+/* USER RIGHT SIDE */
 .user{
   background:#E6E6E6;
-  margin-left:auto;
+  align-self:flex-end;     /* 🔥 FIX alignment */
 }
 
-body.dark .user{background:#2C2C2C;}
+body.dark .user{
+  background:#2C2C2C;
+}
 
+/* AI LEFT SIDE */
 .ai{
   background:#F3F3F3;
+  align-self:flex-start;   /* 🔥 FIX alignment */
 }
 
-body.dark .ai{background:#262626;}
+body.dark .ai{
+  background:#262626;
+}
 
+/* INPUT */
 .input-area{
   display:flex;
   padding:12px;
   border-top:1px solid var(--border);
+  gap:8px;
 }
 
 input{
@@ -112,6 +137,7 @@ input{
   color:var(--text);
 }
 
+/* MODAL */
 .modal{
   position:fixed;
   inset:0;
@@ -126,6 +152,14 @@ input{
   padding:18px;
   border-radius:16px;
   width:320px;
+}
+
+/* MOBILE */
+@media(max-width:900px){
+  .chat{
+    max-width:100%;
+    border-radius:0;
+  }
 }
 </style>
 </head>
@@ -173,28 +207,21 @@ input{
 
 <script>
 
-let messages = [];
-
-/* ================= SCROLL FIX ================= */
 function scrollToBottom(){
-  const box = document.getElementById("messages");
-  box.scrollTop = box.scrollHeight;
+  const box=document.getElementById("messages");
+  box.scrollTop=box.scrollHeight;
 }
-
-/* ================= UI ================= */
 
 function addMsg(text,type){
   const div=document.createElement("div");
   div.className="msg "+type;
   div.innerText=text;
   document.getElementById("messages").appendChild(div);
-
-  scrollToBottom(); // 🔥 ALWAYS KEEP BOTTOM
+  scrollToBottom();
   return div;
 }
 
-/* ================= STREAMING ================= */
-
+/* STREAMING */
 async function send(){
 
 const input=document.getElementById("input");
@@ -213,8 +240,7 @@ if(!key){
   return;
 }
 
-/* AI placeholder */
-const aiDiv = addMsg("...", "ai");
+const aiDiv=addMsg("...", "ai");
 
 try{
 
@@ -246,7 +272,6 @@ while(true){
   for(let line of lines){
     if(line.startsWith("data: ")){
       const data=line.replace("data: ","");
-
       if(data==="[DONE]") continue;
 
       try{
@@ -256,8 +281,7 @@ while(true){
         if(token){
           full+=token;
           aiDiv.innerText=full;
-
-          scrollToBottom(); // 🔥 STREAM SCROLL FIX
+          scrollToBottom();
         }
       }catch(e){}
     }
@@ -270,8 +294,7 @@ aiDiv.innerText="Error";
 
 }
 
-/* ================= SETTINGS ================= */
-
+/* SETTINGS */
 function openSettings(){
   document.getElementById("modal").style.display="flex";
 }
@@ -286,8 +309,7 @@ function saveSettings(){
   closeSettings();
 }
 
-/* ================= DARK ================= */
-
+/* DARK MODE */
 function toggleDark(){
   document.body.classList.toggle("dark");
 }
