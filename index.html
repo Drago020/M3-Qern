@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AgentFlow AI Pro</title>
+<title>AgentFlow AI</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -35,8 +35,29 @@ body{
   background:var(--bg);
   color:var(--text);
   height:100vh;
-  overflow:hidden;
   display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* HEADER (FIXED + ALWAYS VISIBLE) */
+header{
+  height:56px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 14px;
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+  z-index:10;
+}
+
+/* LAYOUT */
+.app{
+  flex:1;
+  display:flex;
+  overflow:hidden;
 }
 
 /* SIDEBAR */
@@ -57,45 +78,30 @@ body{
 .chatItem{
   padding:10px;
   border-radius:10px;
-  cursor:pointer;
   margin-bottom:6px;
   background:#f3f3f3;
+  cursor:pointer;
 }
 
 .chatItem.active{
   background:#e6e6e6;
 }
 
-/* MAIN AREA */
+/* MAIN */
 .main{
   flex:1;
   display:flex;
-  flex-direction:column;
-  overflow:hidden; /* 🔥 prevents page scroll */
-}
-
-/* HEADER */
-header{
-  padding:12px;
-  display:flex;
-  justify-content:space-between;
-  background:var(--card);
-  border-bottom:1px solid var(--border);
-  flex-shrink:0;
-}
-
-/* CHAT CONTAINER */
-.chatWrapper{
-  flex:1;
-  display:flex;
   justify-content:center;
+  align-items:center;
   padding:14px;
+  overflow:hidden;
 }
 
-/* CHAT BOX */
+/* CHAT CARD */
 .chat{
   width:100%;
   max-width:900px;
+  height:100%;
   display:flex;
   flex-direction:column;
   background:var(--card);
@@ -112,7 +118,6 @@ header{
   display:flex;
   flex-direction:column;
   gap:10px;
-  scroll-behavior:smooth;
 }
 
 .msg{
@@ -133,13 +138,14 @@ header{
   align-self:flex-start;
 }
 
-/* INPUT BAR (ALWAYS VISIBLE) */
+/* INPUT (ALWAYS FIXED INSIDE CHAT) */
 .inputBar{
   display:flex;
   gap:8px;
   padding:12px;
   border-top:1px solid var(--border);
-  flex-shrink:0; /* 🔥 prevents disappearing */
+  flex-shrink:0;
+  background:var(--card);
 }
 
 input{
@@ -162,14 +168,25 @@ button{
 
 /* MOBILE */
 @media(max-width:900px){
-  .sidebar{
-    display:none;
-  }
+  .sidebar{display:none;}
+  .chat{border-radius:0;}
 }
 </style>
 </head>
 
 <body>
+
+<!-- HEADER (RESTORED SETTINGS BUTTON) -->
+<header>
+  <div>AgentFlow AI</div>
+  <div>
+    <button onclick="toggleDark()">🌙</button>
+    <button onclick="alert('Settings coming soon upgrade')">⚙️</button>
+  </div>
+</header>
+
+<!-- APP -->
+<div class="app">
 
 <!-- SIDEBAR -->
 <div class="sidebar">
@@ -177,15 +194,8 @@ button{
   <div class="chatList" id="chatList"></div>
 </div>
 
-<!-- MAIN -->
+<!-- MAIN CHAT -->
 <div class="main">
-
-<header>
-  <div>AgentFlow AI</div>
-  <button onclick="toggleDark()">🌙</button>
-</header>
-
-<div class="chatWrapper">
 
 <div class="chat">
 
@@ -208,18 +218,17 @@ let chats = JSON.parse(localStorage.getItem("chats")||"{}");
 let current = "default";
 
 if(!chats[current]){
-  chats[current] = {messages:[]};
+  chats[current]={messages:[]};
 }
 
-/* SAVE */
 function save(){
   localStorage.setItem("chats",JSON.stringify(chats));
 }
 
-/* RENDER */
 function render(){
   const box=document.getElementById("messages");
   box.innerHTML="";
+
   chats[current].messages.forEach(m=>{
     const div=document.createElement("div");
     div.className="msg "+m.role;
@@ -230,7 +239,6 @@ function render(){
   box.scrollTop=box.scrollHeight;
 }
 
-/* ADD */
 function add(text,role){
   chats[current].messages.push({text,role});
   save();
@@ -277,7 +285,6 @@ add(reply,"ai");
 
 }
 
-/* DARK */
 function toggleDark(){
   document.body.classList.toggle("dark");
 }
