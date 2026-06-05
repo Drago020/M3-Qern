@@ -3,7 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>AgentFlow AI</title>
+
+<!-- PWA -->
+<meta name="theme-color" content="#6B6B6B">
+<link rel="manifest" href="manifest.json">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -40,7 +45,7 @@ body{
   overflow:hidden;
 }
 
-/* HEADER (FIXED + ALWAYS VISIBLE) */
+/* HEADER */
 header{
   height:56px;
   display:flex;
@@ -50,10 +55,9 @@ header{
   background:var(--card);
   border-bottom:1px solid var(--border);
   flex-shrink:0;
-  z-index:10;
 }
 
-/* LAYOUT */
+/* APP */
 .app{
   flex:1;
   display:flex;
@@ -110,7 +114,7 @@ header{
   overflow:hidden;
 }
 
-/* MESSAGES (ONLY SCROLL AREA) */
+/* MESSAGES */
 .messages{
   flex:1;
   overflow-y:auto;
@@ -138,14 +142,13 @@ header{
   align-self:flex-start;
 }
 
-/* INPUT (ALWAYS FIXED INSIDE CHAT) */
+/* INPUT */
 .inputBar{
   display:flex;
   gap:8px;
   padding:12px;
   border-top:1px solid var(--border);
   flex-shrink:0;
-  background:var(--card);
 }
 
 input{
@@ -165,27 +168,20 @@ button{
   color:white;
   cursor:pointer;
 }
-
-/* MOBILE */
-@media(max-width:900px){
-  .sidebar{display:none;}
-  .chat{border-radius:0;}
-}
 </style>
 </head>
 
 <body>
 
-<!-- HEADER (RESTORED SETTINGS BUTTON) -->
+<!-- HEADER -->
 <header>
   <div>AgentFlow AI</div>
   <div>
     <button onclick="toggleDark()">🌙</button>
-    <button onclick="alert('Settings coming soon upgrade')">⚙️</button>
+    <button onclick="openSettings()">⚙️</button>
   </div>
 </header>
 
-<!-- APP -->
 <div class="app">
 
 <!-- SIDEBAR -->
@@ -194,7 +190,7 @@ button{
   <div class="chatList" id="chatList"></div>
 </div>
 
-<!-- MAIN CHAT -->
+<!-- MAIN -->
 <div class="main">
 
 <div class="chat">
@@ -214,33 +210,36 @@ button{
 
 <script>
 
-let chats = JSON.parse(localStorage.getItem("chats")||"{}");
+let chats = JSON.parse(localStorage.getItem("chats") || "{}");
 let current = "default";
 
 if(!chats[current]){
-  chats[current]={messages:[]};
+  chats[current] = {messages:[]};
 }
 
+/* SAVE */
 function save(){
-  localStorage.setItem("chats",JSON.stringify(chats));
+  localStorage.setItem("chats", JSON.stringify(chats));
 }
 
+/* RENDER */
 function render(){
-  const box=document.getElementById("messages");
-  box.innerHTML="";
+  const box = document.getElementById("messages");
+  box.innerHTML = "";
 
   chats[current].messages.forEach(m=>{
-    const div=document.createElement("div");
-    div.className="msg "+m.role;
-    div.innerText=m.text;
+    const div = document.createElement("div");
+    div.className = "msg " + m.role;
+    div.innerText = m.text;
     box.appendChild(div);
   });
 
-  box.scrollTop=box.scrollHeight;
+  box.scrollTop = box.scrollHeight;
 }
 
-function add(text,role){
-  chats[current].messages.push({text,role});
+/* ADD MESSAGE */
+function add(text, role){
+  chats[current].messages.push({text, role});
   save();
   render();
 }
@@ -248,50 +247,66 @@ function add(text,role){
 /* SEND */
 async function send(){
 
-const input=document.getElementById("input");
-const text=input.value.trim();
+const input = document.getElementById("input");
+const text = input.value.trim();
 if(!text) return;
 
-input.value="";
+input.value = "";
 
-add(text,"user");
+add(text, "user");
 
-const key=localStorage.getItem("or_key");
+const key = localStorage.getItem("or_key");
 
 if(!key){
   add("Add API key in settings","ai");
   return;
 }
 
-const res=await fetch("https://openrouter.ai/api/v1/chat/completions",{
+const res = await fetch("https://openrouter.ai/api/v1/chat/completions",{
 method:"POST",
 headers:{
-"Authorization":"Bearer "+key,
+"Authorization":"Bearer " + key,
 "Content-Type":"application/json"
 },
 body:JSON.stringify({
 model:"openai/gpt-4o-mini",
-messages:chats[current].messages.map(m=>({
+messages: chats[current].messages.map(m=>({
 role:m.role,
 content:m.text
 }))
 })
 });
 
-const data=await res.json();
-const reply=data.choices?.[0]?.message?.content || "Error";
+const data = await res.json();
+const reply = data.choices?.[0]?.message?.content || "Error";
 
 add(reply,"ai");
 
 }
 
+/* DARK */
 function toggleDark(){
   document.body.classList.toggle("dark");
 }
 
+/* SETTINGS (placeholder safe) */
+function openSettings(){
+  alert("Settings UI not added yet in this build.");
+}
+
+/* INIT */
 render();
 
 </script>
 
+<!-- PWA SERVICE WORKER -->
+<script>
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js")
+  .then(()=>console.log("SW registered"))
+  .catch(err=>console.log("SW failed",err));
+}
+</script>
+
 </body>
-</html>
+  </html>
