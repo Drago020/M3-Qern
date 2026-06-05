@@ -3,186 +3,170 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>AgentFlow AI</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
 :root{
-    --bg:#F8F9FA;
-    --surface:#FFFFFF;
-    --primary:#5E5E66;
-    --secondary:#8B8B95;
-    --accent:#6366F1;
-    --shadow:0 8px 30px rgba(0,0,0,.08);
-    --radius:28px;
+  /* 🪨 TRUE NEUTRAL MATERIAL YOU */
+  --bg:#F5F5F5;
+  --card:#FFFFFF;
+  --text:#1C1C1C;
+  --muted:#5F5F5F;
+  --accent:#6B6B6B;
+  --border:#E0E0E0;
+  --radius:18px;
+  --shadow:0 8px 24px rgba(0,0,0,0.06);
 }
 
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Inter,sans-serif;
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Inter, sans-serif;
 }
 
 body{
-    background:var(--bg);
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
+  background:var(--bg);
+  color:var(--text);
+  height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 
+/* HEADER */
 header{
-    padding:18px 24px;
-    background:rgba(255,255,255,.8);
-    backdrop-filter:blur(12px);
-    border-bottom:1px solid #eee;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+  background:var(--card);
+  padding:14px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--border);
 }
 
 .logo{
-    font-size:24px;
-    font-weight:700;
-}
-
-.container{
-    flex:1;
-    display:grid;
-    grid-template-columns:280px 1fr;
-    gap:20px;
-    padding:20px;
-}
-
-.sidebar{
-    background:var(--surface);
-    border-radius:var(--radius);
-    padding:20px;
-    box-shadow:var(--shadow);
-}
-
-.agent{
-    padding:16px;
-    border-radius:20px;
-    margin-bottom:12px;
-    cursor:pointer;
-    transition:.25s;
-    background:#f3f4f6;
-}
-
-.agent:hover{
-    background:#ececff;
-}
-
-.agent.active{
-    background:var(--accent);
-    color:white;
-}
-
-.status{
-    width:10px;
-    height:10px;
-    background:#22c55e;
-    border-radius:50%;
-    display:inline-block;
-    margin-right:8px;
-}
-
-.main{
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-}
-
-.chat-card{
-    background:var(--surface);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow);
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
-}
-
-.messages{
-    flex:1;
-    padding:20px;
-    overflow-y:auto;
-}
-
-.message{
-    max-width:80%;
-    margin-bottom:15px;
-    padding:14px 18px;
-    border-radius:20px;
-}
-
-.user{
-    background:var(--accent);
-    color:white;
-    margin-left:auto;
-}
-
-.ai{
-    background:#f1f5f9;
-}
-
-.input-area{
-    padding:16px;
-    border-top:1px solid #eee;
-    display:flex;
-    gap:10px;
-}
-
-input{
-    flex:1;
-    border:none;
-    background:#f3f4f6;
-    padding:16px;
-    border-radius:18px;
-    font-size:15px;
+  font-weight:600;
 }
 
 button{
-    border:none;
-    background:var(--accent);
-    color:white;
-    padding:16px 22px;
-    border-radius:18px;
-    cursor:pointer;
+  background:var(--accent);
+  color:white;
+  border:none;
+  padding:10px 14px;
+  border-radius:12px;
+  cursor:pointer;
 }
 
-.agents-output{
-    background:var(--surface);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow);
-    padding:20px;
+button:hover{
+  background:#555;
 }
 
-.output-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:16px;
+/* LAYOUT */
+.container{
+  display:grid;
+  grid-template-columns:260px 1fr;
+  gap:14px;
+  padding:14px;
+  flex:1;
 }
 
-.agent-response{
-    background:#f8fafc;
-    border-radius:20px;
-    padding:16px;
+/* SIDEBAR */
+.sidebar{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:12px;
+  box-shadow:var(--shadow);
 }
 
+.agent{
+  padding:10px;
+  margin-bottom:8px;
+  border-radius:12px;
+  background:#F0F0F0;
+  cursor:pointer;
+}
+
+.agent.active{
+  background:#E6E6E6;
+  border:1px solid var(--border);
+}
+
+/* CHAT */
+.chat{
+  background:var(--card);
+  border-radius:var(--radius);
+  display:flex;
+  flex-direction:column;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  height:calc(100vh - 120px);
+}
+
+.messages{
+  flex:1;
+  padding:14px;
+  overflow-y:auto;
+}
+
+.msg{
+  max-width:75%;
+  padding:10px 12px;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+
+.user{
+  background:#E6E6E6;
+  margin-left:auto;
+}
+
+.ai{
+  background:#F3F3F3;
+}
+
+/* INPUT */
+.input-area{
+  display:flex;
+  padding:12px;
+  border-top:1px solid var(--border);
+  gap:8px;
+}
+
+input{
+  flex:1;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.4);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+.modal-content{
+  background:var(--card);
+  padding:18px;
+  border-radius:16px;
+  width:300px;
+  box-shadow:var(--shadow);
+}
+
+/* MOBILE */
 @media(max-width:900px){
-    .container{
-        grid-template-columns:1fr;
-    }
-}
+  .container{
+    grid-template-columns:1fr;
+  }
 
-@media(max-width:600px){
-    .output-grid{
-        grid-template-columns:1fr;
-    }
+  .chat{
+    height:calc(100vh - 160px);
+  }
 }
 </style>
 </head>
@@ -190,111 +174,118 @@ button{
 <body>
 
 <header>
-    <div class="logo">AgentFlow AI</div>
-    <button onclick="toggleTheme()">🌙</button>
+  <div class="logo">AgentFlow AI</div>
+  <button onclick="openSettings()">⚙️ Settings</button>
 </header>
 
 <div class="container">
 
+<!-- SIDEBAR -->
 <div class="sidebar">
-
-<h3>AI Agents</h3>
-
-<div class="agent active">
-<span class="status"></span>GPT-5
+  <div class="agent active">GPT (OpenRouter)</div>
+  <div class="agent">Claude</div>
+  <div class="agent">Gemini</div>
+  <div class="agent">DeepSeek</div>
 </div>
 
-<div class="agent">
-<span class="status"></span>Claude
-</div>
+<!-- CHAT -->
+<div class="chat">
+  <div class="messages" id="messages">
+    <div class="msg ai">👋 Add your OpenRouter API key in settings to start.</div>
+  </div>
 
-<div class="agent">
-<span class="status"></span>Gemini
-</div>
-
-<div class="agent">
-<span class="status"></span>DeepSeek
-</div>
-
-</div>
-
-<div class="main">
-
-<div class="chat-card">
-
-<div class="messages" id="messages">
-
-<div class="message ai">
-Welcome to AgentFlow AI 👋
-Ask a question and multiple AI agents will collaborate.
+  <div class="input-area">
+    <input id="input" placeholder="Ask something...">
+    <button onclick="send()">Send</button>
+  </div>
 </div>
 
 </div>
 
-<div class="input-area">
-<input id="prompt" placeholder="Ask anything...">
-<button onclick="sendMessage()">Send</button>
-</div>
+<!-- SETTINGS MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3>Settings</h3>
+    <br>
 
-</div>
+    <label>OpenRouter API Key</label>
+    <input id="apiKey" placeholder="sk-or-..." style="width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1px solid var(--border);">
 
-<div class="agents-output">
+    <br><br>
 
-<h3 style="margin-bottom:16px;">Multi-Agent Responses</h3>
-
-<div class="output-grid">
-
-<div class="agent-response">
-<strong>GPT-5</strong>
-<p>Response will appear here.</p>
-</div>
-
-<div class="agent-response">
-<strong>Claude</strong>
-<p>Response will appear here.</p>
-</div>
-
-<div class="agent-response">
-<strong>Gemini</strong>
-<p>Response will appear here.</p>
-</div>
-
-<div class="agent-response">
-<strong>DeepSeek</strong>
-<p>Response will appear here.</p>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
+    <button onclick="saveKey()">Save</button>
+    <button onclick="closeSettings()" style="background:#999">Close</button>
+  </div>
 </div>
 
 <script>
-function sendMessage(){
 
-const input = document.getElementById("prompt");
-const messages = document.getElementById("messages");
-
-if(!input.value.trim()) return;
-
-messages.innerHTML += `
-<div class="message user">
-${input.value}
-</div>
-`;
-
-input.value = "";
-
-messages.scrollTop = messages.scrollHeight;
+function openSettings(){
+  document.getElementById("modal").style.display="flex";
 }
 
-function toggleTheme(){
-document.body.classList.toggle("dark");
+function closeSettings(){
+  document.getElementById("modal").style.display="none";
 }
+
+function saveKey(){
+  const key=document.getElementById("apiKey").value;
+  localStorage.setItem("openrouter_key",key);
+  alert("Saved!");
+  closeSettings();
+}
+
+function addMsg(text,type){
+  const div=document.createElement("div");
+  div.className="msg "+type;
+  div.innerText=text;
+  document.getElementById("messages").appendChild(div);
+}
+
+async function send(){
+
+const input=document.getElementById("input");
+const text=input.value.trim();
+if(!text) return;
+
+addMsg(text,"user");
+input.value="";
+
+const key=localStorage.getItem("openrouter_key");
+
+if(!key){
+  addMsg("Please add API key in settings","ai");
+  return;
+}
+
+try{
+
+const res=await fetch("https://openrouter.ai/api/v1/chat/completions",{
+method:"POST",
+headers:{
+"Authorization":"Bearer "+key,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+model:"openai/gpt-4o-mini",
+messages:[{role:"user",content:text}]
+})
+});
+
+const data=await res.json();
+
+addMsg(
+data.choices?.[0]?.message?.content || "No response",
+"ai"
+);
+
+}catch(e){
+addMsg("Request failed","ai");
+}
+
+}
+
 </script>
 
 </body>
-  </html>
+    </html>
