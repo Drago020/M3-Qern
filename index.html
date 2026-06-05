@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AgentFlow AI</title>
+<title>AgentFlow AI Pro</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -28,7 +28,7 @@ body.dark{
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:Inter,sans-serif;
+  font-family:Inter, sans-serif;
 }
 
 body{
@@ -37,120 +37,109 @@ body{
   height:100vh;
   overflow:hidden;
   display:flex;
-  flex-direction:column;
+}
 
-  /* 🌊 smooth global feel */
-  transition:background 0.5s ease, color 0.5s ease;
+/* SIDEBAR */
+.sidebar{
+  width:260px;
+  background:var(--card);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+}
+
+.chatList{
+  flex:1;
+  overflow:auto;
+  padding:10px;
+}
+
+.chatItem{
+  padding:10px;
+  border-radius:10px;
+  cursor:pointer;
+  margin-bottom:6px;
+  background:#f3f3f3;
+}
+
+.chatItem.active{
+  background:#e6e6e6;
+}
+
+/* MAIN AREA */
+.main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden; /* 🔥 prevents page scroll */
 }
 
 /* HEADER */
 header{
-  padding:14px 18px;
+  padding:12px;
   display:flex;
   justify-content:space-between;
-  align-items:center;
   background:var(--card);
   border-bottom:1px solid var(--border);
-
-  animation:slideDown 0.6s ease;
+  flex-shrink:0;
 }
 
-button{
-  padding:10px 12px;
-  border:none;
-  border-radius:12px;
-  background:var(--accent);
-  color:white;
-  cursor:pointer;
-
-  transition:transform 0.15s ease, background 0.3s ease;
-}
-
-button:hover{
-  transform:translateY(-1px);
-  background:#555;
-}
-
-button:active{
-  transform:scale(0.96);
-}
-
-/* LAYOUT */
-.container{
+/* CHAT CONTAINER */
+.chatWrapper{
   flex:1;
   display:flex;
   justify-content:center;
-  align-items:center;
-  padding:16px;
+  padding:14px;
 }
 
-/* CHAT CARD */
+/* CHAT BOX */
 .chat{
   width:100%;
   max-width:900px;
-  height:100%;
-  max-height:calc(100vh - 80px);
-
   display:flex;
   flex-direction:column;
-
   background:var(--card);
   border:1px solid var(--border);
   border-radius:32px;
   overflow:hidden;
-
-  box-shadow:0 10px 30px rgba(0,0,0,0.08);
-
-  animation:floatIn 0.7s cubic-bezier(.2,.8,.2,1);
 }
 
-/* MESSAGES */
+/* MESSAGES (ONLY SCROLL AREA) */
 .messages{
   flex:1;
-  padding:14px;
   overflow-y:auto;
+  padding:14px;
   display:flex;
   flex-direction:column;
   gap:10px;
   scroll-behavior:smooth;
 }
 
-/* ✨ MESSAGE ANIMATION */
 .msg{
   max-width:75%;
   padding:10px 12px;
   border-radius:14px;
   white-space:pre-wrap;
-  word-wrap:break-word;
-
-  opacity:0;
-  transform:translateY(10px) scale(0.98);
-  animation:msgIn 0.35s ease forwards;
+  word-break:break-word;
 }
 
-/* USER / AI */
 .user{
   background:#E6E6E6;
   align-self:flex-end;
 }
-
-body.dark .user{background:#2C2C2C;}
 
 .ai{
   background:#F3F3F3;
   align-self:flex-start;
 }
 
-body.dark .ai{background:#262626;}
-
-/* INPUT */
-.input-area{
+/* INPUT BAR (ALWAYS VISIBLE) */
+.inputBar{
   display:flex;
+  gap:8px;
   padding:12px;
   border-top:1px solid var(--border);
-  gap:8px;
-
-  animation:slideUp 0.6s ease;
+  flex-shrink:0; /* 🔥 prevents disappearing */
 }
 
 input{
@@ -160,87 +149,21 @@ input{
   border:1px solid var(--border);
   background:var(--card);
   color:var(--text);
-
-  transition:all 0.3s ease;
 }
 
-input:focus{
-  outline:none;
-  transform:scale(1.01);
-}
-
-/* MODAL */
-.modal{
-  position:fixed;
-  inset:0;
-  display:none;
-  justify-content:center;
-  align-items:center;
-  background:rgba(0,0,0,0.4);
-  backdrop-filter:blur(8px);
-
-  animation:fadeIn 0.3s ease;
-}
-
-.modal-content{
-  background:var(--card);
-  padding:18px;
-  border-radius:18px;
-  width:320px;
-
-  animation:popIn 0.35s cubic-bezier(.2,.8,.2,1);
-}
-
-/* 🌊 ANIMATIONS */
-@keyframes msgIn{
-  to{
-    opacity:1;
-    transform:translateY(0) scale(1);
-  }
-}
-
-@keyframes floatIn{
-  from{
-    opacity:0;
-    transform:translateY(20px);
-  }
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
-}
-
-@keyframes slideDown{
-  from{transform:translateY(-20px);opacity:0;}
-  to{transform:translateY(0);opacity:1;}
-}
-
-@keyframes slideUp{
-  from{transform:translateY(20px);opacity:0;}
-  to{transform:translateY(0);opacity:1;}
-}
-
-@keyframes fadeIn{
-  from{opacity:0;}
-  to{opacity:1;}
-}
-
-@keyframes popIn{
-  from{
-    opacity:0;
-    transform:scale(0.9);
-  }
-  to{
-    opacity:1;
-    transform:scale(1);
-  }
+button{
+  padding:10px 12px;
+  border:none;
+  border-radius:12px;
+  background:var(--accent);
+  color:white;
+  cursor:pointer;
 }
 
 /* MOBILE */
 @media(max-width:900px){
-  .chat{
-    border-radius:0;
-    max-height:100vh;
+  .sidebar{
+    display:none;
   }
 }
 </style>
@@ -248,21 +171,27 @@ input:focus{
 
 <body>
 
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h3 style="padding:12px;">Chats</h3>
+  <div class="chatList" id="chatList"></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
 <header>
   <div>AgentFlow AI</div>
-  <div>
-    <button onclick="toggleDark()">🌙</button>
-    <button onclick="openSettings()">⚙️</button>
-  </div>
+  <button onclick="toggleDark()">🌙</button>
 </header>
 
-<div class="container">
+<div class="chatWrapper">
 
 <div class="chat">
 
 <div class="messages" id="messages"></div>
 
-<div class="input-area">
+<div class="inputBar">
   <input id="input" placeholder="Ask something...">
   <button onclick="send()">Send</button>
 </div>
@@ -271,44 +200,44 @@ input:focus{
 
 </div>
 
-<!-- SETTINGS -->
-<div class="modal" id="modal">
-<div class="modal-content">
-
-<h3>Settings</h3>
-<br>
-
-<input id="apiKey" placeholder="OpenRouter API Key" style="width:100%;padding:10px;margin-bottom:10px;">
-<input id="model" placeholder="model" style="width:100%;padding:10px;margin-bottom:10px;">
-
-<button onclick="saveSettings()">Save</button>
-<button onclick="closeSettings()" style="background:#777">Close</button>
-
-</div>
 </div>
 
 <script>
 
-/* SCROLL */
-function scrollToBottom(){
+let chats = JSON.parse(localStorage.getItem("chats")||"{}");
+let current = "default";
+
+if(!chats[current]){
+  chats[current] = {messages:[]};
+}
+
+/* SAVE */
+function save(){
+  localStorage.setItem("chats",JSON.stringify(chats));
+}
+
+/* RENDER */
+function render(){
   const box=document.getElementById("messages");
+  box.innerHTML="";
+  chats[current].messages.forEach(m=>{
+    const div=document.createElement("div");
+    div.className="msg "+m.role;
+    div.innerText=m.text;
+    box.appendChild(div);
+  });
+
   box.scrollTop=box.scrollHeight;
 }
 
-/* MESSAGE WITH ANIMATION DELAY */
-function addMsg(text,type){
-  const div=document.createElement("div");
-  div.className="msg "+type;
-  div.innerText=text;
-
-  document.getElementById("messages").appendChild(div);
-
-  scrollToBottom();
-
-  return div;
+/* ADD */
+function add(text,role){
+  chats[current].messages.push({text,role});
+  save();
+  render();
 }
 
-/* STREAMING */
+/* SEND */
 async function send(){
 
 const input=document.getElementById("input");
@@ -317,19 +246,14 @@ if(!text) return;
 
 input.value="";
 
-addMsg(text,"user");
+add(text,"user");
 
 const key=localStorage.getItem("or_key");
-const model=localStorage.getItem("model") || "openai/gpt-4o-mini";
 
 if(!key){
-  addMsg("Add API key in settings","ai");
+  add("Add API key in settings","ai");
   return;
 }
-
-const aiDiv=addMsg("...", "ai");
-
-try{
 
 const res=await fetch("https://openrouter.ai/api/v1/chat/completions",{
 method:"POST",
@@ -338,72 +262,27 @@ headers:{
 "Content-Type":"application/json"
 },
 body:JSON.stringify({
-model:model,
-stream:true,
-messages:[{role:"user",content:text}]
+model:"openai/gpt-4o-mini",
+messages:chats[current].messages.map(m=>({
+role:m.role,
+content:m.text
+}))
 })
 });
 
-const reader=res.body.getReader();
-const decoder=new TextDecoder();
+const data=await res.json();
+const reply=data.choices?.[0]?.message?.content || "Error";
 
-let full="";
+add(reply,"ai");
 
-while(true){
-  const {value,done}=await reader.read();
-  if(done) break;
-
-  const chunk=decoder.decode(value);
-  const lines=chunk.split("\n");
-
-  for(let line of lines){
-    if(line.startsWith("data: ")){
-      const data=line.replace("data: ","");
-      if(data==="[DONE]") continue;
-
-      try{
-        const json=JSON.parse(data);
-        const token=json.choices?.[0]?.delta?.content;
-
-        if(token){
-          full+=token;
-          aiDiv.innerText=full;
-          scrollToBottom();
-        }
-      }catch(e){}
-    }
-  }
-}
-
-}catch(e){
-aiDiv.innerText="Error";
-}
-
-/* micro animation refresh */
-aiDiv.style.transform="scale(1.01)";
-setTimeout(()=>aiDiv.style.transform="scale(1)",120);
-
-}
-
-/* SETTINGS */
-function openSettings(){
-  document.getElementById("modal").style.display="flex";
-}
-
-function closeSettings(){
-  document.getElementById("modal").style.display="none";
-}
-
-function saveSettings(){
-  localStorage.setItem("or_key",document.getElementById("apiKey").value);
-  localStorage.setItem("model",document.getElementById("model").value);
-  closeSettings();
 }
 
 /* DARK */
 function toggleDark(){
   document.body.classList.toggle("dark");
 }
+
+render();
 
 </script>
 
