@@ -6,7 +6,6 @@
 
 <title>AgentFlow AI</title>
 
-<!-- PWA -->
 <meta name="theme-color" content="#6B6B6B">
 <link rel="manifest" href="manifest.json">
 
@@ -54,7 +53,6 @@ header{
   padding:0 14px;
   background:var(--card);
   border-bottom:1px solid var(--border);
-  flex-shrink:0;
 }
 
 /* APP */
@@ -69,26 +67,7 @@ header{
   width:260px;
   background:var(--card);
   border-right:1px solid var(--border);
-  display:flex;
-  flex-direction:column;
-}
-
-.chatList{
-  flex:1;
-  overflow:auto;
   padding:10px;
-}
-
-.chatItem{
-  padding:10px;
-  border-radius:10px;
-  margin-bottom:6px;
-  background:#f3f3f3;
-  cursor:pointer;
-}
-
-.chatItem.active{
-  background:#e6e6e6;
 }
 
 /* MAIN */
@@ -98,10 +77,9 @@ header{
   justify-content:center;
   align-items:center;
   padding:14px;
-  overflow:hidden;
 }
 
-/* CHAT CARD */
+/* CHAT */
 .chat{
   width:100%;
   max-width:900px;
@@ -128,19 +106,11 @@ header{
   max-width:75%;
   padding:10px 12px;
   border-radius:14px;
-  white-space:pre-wrap;
   word-break:break-word;
 }
 
-.user{
-  background:#E6E6E6;
-  align-self:flex-end;
-}
-
-.ai{
-  background:#F3F3F3;
-  align-self:flex-start;
-}
+.user{background:#E6E6E6;align-self:flex-end;}
+.ai{background:#F3F3F3;align-self:flex-start;}
 
 /* INPUT */
 .inputBar{
@@ -148,7 +118,6 @@ header{
   gap:8px;
   padding:12px;
   border-top:1px solid var(--border);
-  flex-shrink:0;
 }
 
 input{
@@ -168,6 +137,43 @@ button{
   color:white;
   cursor:pointer;
 }
+
+/* SETTINGS PANEL */
+.settingsPanel{
+  position:fixed;
+  top:0;
+  right:-360px;
+  width:340px;
+  height:100vh;
+  background:var(--card);
+  border-left:1px solid var(--border);
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  transition:0.35s ease;
+  z-index:999;
+}
+
+.settingsPanel.open{
+  right:0;
+}
+
+.settingsHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.settingsPanel input{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid var(--border);
+}
+
+.saveBtn{
+  margin-top:auto;
+}
 </style>
 </head>
 
@@ -186,8 +192,7 @@ button{
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-  <h3 style="padding:12px;">Chats</h3>
-  <div class="chatList" id="chatList"></div>
+  <h3>Chats</h3>
 </div>
 
 <!-- MAIN -->
@@ -208,80 +213,95 @@ button{
 
 </div>
 
+<!-- SETTINGS PANEL -->
+<div id="settingsPanel" class="settingsPanel">
+
+<div class="settingsHeader">
+  <h3>Settings</h3>
+  <button onclick="closeSettings()">✖</button>
+</div>
+
+<label>OpenRouter API Key</label>
+<input id="apiKey" placeholder="sk-..." />
+
+<label>Model</label>
+<input id="model" placeholder="openai/gpt-4o-mini" />
+
+<button onclick="toggleDark()">Toggle Dark Mode</button>
+
+<button class="saveBtn" onclick="saveSettings()">Save</button>
+
+</div>
+
 <script>
 
-let chats = JSON.parse(localStorage.getItem("chats") || "{}");
-let current = "default";
-
-if(!chats[current]){
-  chats[current] = {messages:[]};
+function scrollToBottom(){
+  const box=document.getElementById("messages");
+  box.scrollTop=box.scrollHeight;
 }
 
-/* SAVE */
-function save(){
-  localStorage.setItem("chats", JSON.stringify(chats));
+function add(text,role){
+  const div=document.createElement("div");
+  div.className="msg "+role;
+  div.innerText=text;
+  document.getElementById("messages").appendChild(div);
+  scrollToBottom();
 }
 
-/* RENDER */
-function render(){
-  const box = document.getElementById("messages");
-  box.innerHTML = "";
-
-  chats[current].messages.forEach(m=>{
-    const div = document.createElement("div");
-    div.className = "msg " + m.role;
-    div.innerText = m.text;
-    box.appendChild(div);
-  });
-
-  box.scrollTop = box.scrollHeight;
-}
-
-/* ADD MESSAGE */
-function add(text, role){
-  chats[current].messages.push({text, role});
-  save();
-  render();
-}
-
-/* SEND */
 async function send(){
 
-const input = document.getElementById("input");
-const text = input.value.trim();
+const input=document.getElementById("input");
+const text=input.value.trim();
 if(!text) return;
 
-input.value = "";
+input.value="";
 
-add(text, "user");
+add(text,"user");
 
-const key = localStorage.getItem("or_key");
+const key=localStorage.getItem("or_key");
+const model=localStorage.getItem("model") || "openai/gpt-4o-mini";
 
 if(!key){
   add("Add API key in settings","ai");
   return;
 }
 
-const res = await fetch("https://openrouter.ai/api/v1/chat/completions",{
+const res=await fetch("https://openrouter.ai/api/v1/chat/completions",{
 method:"POST",
 headers:{
-"Authorization":"Bearer " + key,
+"Authorization":"Bearer "+key,
 "Content-Type":"application/json"
 },
 body:JSON.stringify({
-model:"openai/gpt-4o-mini",
-messages: chats[current].messages.map(m=>({
-role:m.role,
-content:m.text
-}))
+model:model,
+messages:[{role:"user",content:text}]
 })
 });
 
-const data = await res.json();
-const reply = data.choices?.[0]?.message?.content || "Error";
+const data=await res.json();
+add(data.choices?.[0]?.message?.content || "Error","ai");
 
-add(reply,"ai");
+}
 
+/* SETTINGS */
+function openSettings(){
+  document.getElementById("settingsPanel").classList.add("open");
+
+  document.getElementById("apiKey").value =
+    localStorage.getItem("or_key") || "";
+
+  document.getElementById("model").value =
+    localStorage.getItem("model") || "openai/gpt-4o-mini";
+}
+
+function closeSettings(){
+  document.getElementById("settingsPanel").classList.remove("open");
+}
+
+function saveSettings(){
+  localStorage.setItem("or_key",document.getElementById("apiKey").value);
+  localStorage.setItem("model",document.getElementById("model").value);
+  closeSettings();
 }
 
 /* DARK */
@@ -289,24 +309,10 @@ function toggleDark(){
   document.body.classList.toggle("dark");
 }
 
-/* SETTINGS (placeholder safe) */
-function openSettings(){
-  alert("Settings UI not added yet in this build.");
-}
-
 /* INIT */
-render();
+add("Agent ready.","ai");
 
-</script>
-
-<!-- PWA SERVICE WORKER -->
-<script>
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("sw.js")
-  .then(()=>console.log("SW registered"))
-  .catch(err=>console.log("SW failed",err));
-}
 </script>
 
 </body>
-  </html>
+</html>
