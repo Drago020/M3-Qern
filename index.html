@@ -8,6 +8,7 @@
 <title>AgentFlow AI</title>
 
 <meta name="theme-color" content="#6B6B6B">
+
 <link rel="manifest" href="manifest.json">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -23,6 +24,7 @@
 --accent:#6B6B6B;
 }
 
+
 body.dark{
 
 --bg:#121212;
@@ -34,24 +36,26 @@ body.dark{
 }
 
 
+
 *{
-margin:0;
-padding:0;
 box-sizing:border-box;
 font-family:Inter,sans-serif;
 }
 
 
+
 body{
 
-background:var(--bg);
-color:var(--text);
+margin:0;
 height:100vh;
 display:flex;
 flex-direction:column;
+background:var(--bg);
+color:var(--text);
 overflow:hidden;
 
 }
+
 
 
 header{
@@ -70,12 +74,11 @@ border-bottom:1px solid var(--border);
 
 button{
 
-padding:10px 12px;
-border:none;
-border-radius:12px;
 background:var(--accent);
 color:white;
-cursor:pointer;
+border:none;
+padding:10px;
+border-radius:12px;
 
 }
 
@@ -85,7 +88,6 @@ cursor:pointer;
 
 flex:1;
 display:flex;
-overflow:hidden;
 
 }
 
@@ -95,7 +97,6 @@ overflow:hidden;
 
 width:260px;
 background:var(--card);
-border-right:1px solid var(--border);
 padding:10px;
 
 }
@@ -105,9 +106,6 @@ padding:10px;
 .main{
 
 flex:1;
-display:flex;
-justify-content:center;
-align-items:center;
 padding:14px;
 
 }
@@ -116,13 +114,9 @@ padding:14px;
 
 .chat{
 
-width:100%;
-max-width:900px;
 height:100%;
 background:var(--card);
-border:1px solid var(--border);
-border-radius:32px;
-overflow:hidden;
+border-radius:30px;
 display:flex;
 flex-direction:column;
 
@@ -133,8 +127,8 @@ flex-direction:column;
 .messages{
 
 flex:1;
-overflow-y:auto;
-padding:14px;
+overflow:auto;
+padding:15px;
 display:flex;
 flex-direction:column;
 gap:10px;
@@ -145,10 +139,9 @@ gap:10px;
 
 .msg{
 
+padding:10px;
+border-radius:15px;
 max-width:75%;
-padding:10px 12px;
-border-radius:14px;
-word-break:break-word;
 
 }
 
@@ -156,8 +149,8 @@ word-break:break-word;
 
 .user{
 
-background:#E6E6E6;
 align-self:flex-end;
+background:#ddd;
 
 }
 
@@ -165,8 +158,8 @@ align-self:flex-end;
 
 .ai{
 
-background:#F3F3F3;
 align-self:flex-start;
+background:#eee;
 
 }
 
@@ -183,14 +176,12 @@ border-top:1px solid var(--border);
 
 
 
-input{
+input,textarea{
 
 flex:1;
-padding:12px;
-border-radius:12px;
+padding:10px;
+border-radius:10px;
 border:1px solid var(--border);
-background:var(--card);
-color:var(--text);
 
 }
 
@@ -199,15 +190,13 @@ color:var(--text);
 .settingsPanel{
 
 position:fixed;
-top:0;
 right:-360px;
-width:340px;
+top:0;
 height:100vh;
+width:340px;
 background:var(--card);
-border-left:1px solid var(--border);
-padding:16px;
-transition:.35s;
-z-index:999;
+padding:15px;
+transition:.3s;
 
 }
 
@@ -247,6 +236,7 @@ AgentFlow AI
 </header>
 
 
+
 <div class="app">
 
 
@@ -263,15 +253,27 @@ AgentFlow AI
 <div class="chat">
 
 
-<div class="messages" id="messages"></div>
+<div id="messages" class="messages"></div>
 
 
 
 <div class="inputBar">
 
+
 <input id="input" placeholder="Ask something...">
 
-<button onclick="send()">Send</button>
+
+<button onclick="startVoice()">🎤</button>
+
+
+<input type="file" id="file" onchange="readFile()">
+
+
+
+<button onclick="send()">
+Send
+</button>
+
 
 </div>
 
@@ -283,6 +285,7 @@ AgentFlow AI
 
 
 </div>
+
 
 
 <div id="settingsPanel" class="settingsPanel">
@@ -294,32 +297,35 @@ AgentFlow AI
 <br>
 
 
-<label>
-OpenRouter API Key
-</label>
+<label>API Key</label>
 
-
-<input id="apiKey" placeholder="sk-...">
+<input id="apiKey">
 
 
 
 <br><br>
 
 
-<label>
-Model
-</label>
+<label>Model</label>
+
+<input id="model" value="openai/gpt-4o-mini">
 
 
-<input id="model" placeholder="openai/gpt-4o-mini">
+<br><br>
 
+
+<label>Personality</label>
+
+
+<textarea id="personality"
+placeholder="Example: be funny, act like a teacher..."></textarea>
 
 
 <br><br>
 
 
 <button onclick="toggleDark()">
-Toggle Dark
+Dark mode
 </button>
 
 
@@ -336,10 +342,13 @@ Close
 </button>
 
 
-</div>
+  </div>
+
+  <script>
 
 
-<script>
+let fileText = "";
+
 
 
 function scrollToBottom(){
@@ -352,21 +361,29 @@ box.scrollTop=box.scrollHeight;
 
 
 
+
 function add(text,role){
+
 
 let div=document.createElement("div");
 
+
 div.className="msg "+role;
+
 
 div.innerText=text;
 
 
-document.getElementById("messages").appendChild(div);
+document.getElementById("messages")
+.appendChild(div);
 
 
 scrollToBottom();
 
+
 }
+
+
 
 
 
@@ -374,13 +391,15 @@ scrollToBottom();
 async function send(){
 
 
+
 let input=document.getElementById("input");
+
 
 let text=input.value.trim();
 
 
 
-if(!text) return;
+if(!text)return;
 
 
 
@@ -392,23 +411,39 @@ add(text,"user");
 
 
 
+
 let key=localStorage.getItem("or_key");
 
 
 let model=localStorage.getItem("model") || "openai/gpt-4o-mini";
 
 
+let personality=localStorage.getItem("personality") || "You are AgentFlow AI";
+
+
+
 
 if(!key){
 
-
 add("Add API key in settings","ai");
-
 
 return;
 
-
 }
+
+
+
+
+
+let aiMessage=document.createElement("div");
+
+
+aiMessage.className="msg ai";
+
+
+document.getElementById("messages")
+.appendChild(aiMessage);
+
 
 
 
@@ -416,8 +451,7 @@ return;
 try{
 
 
-
-let response = await fetch(
+let response=await fetch(
 "https://openrouter.ai/api/v1/chat/completions",
 {
 
@@ -430,9 +464,7 @@ headers:{
 
 "Authorization":"Bearer "+key,
 
-
 "Content-Type":"application/json"
-
 
 },
 
@@ -444,6 +476,9 @@ body:JSON.stringify({
 model:model,
 
 
+stream:true,
+
+
 messages:[
 
 
@@ -451,7 +486,7 @@ messages:[
 
 role:"system",
 
-content:"You are AgentFlow AI"
+content:personality
 
 },
 
@@ -460,7 +495,7 @@ content:"You are AgentFlow AI"
 
 role:"user",
 
-content:text
+content:text+"\n\n"+fileText
 
 }
 
@@ -478,22 +513,92 @@ content:text
 
 
 
-let data = await response.json();
+let reader=response.body.getReader();
+
+
+let decoder=new TextDecoder();
 
 
 
-console.log(data);
+while(true){
+
+
+let {done,value}=await reader.read();
+
+
+if(done)break;
 
 
 
-
-if(data.error){
-
-
-add("API Error: "+data.error.message,"ai");
+let chunk=decoder.decode(value);
 
 
-return;
+
+let lines=chunk.split("\n");
+
+
+
+for(let line of lines){
+
+
+
+if(line.startsWith("data:")){
+
+
+
+let data=line.replace("data: ","");
+
+
+
+if(data=="[DONE]")continue;
+
+
+
+try{
+
+
+let json=JSON.parse(data);
+
+
+let token=json.choices[0].delta.content;
+
+
+if(token){
+
+
+aiMessage.innerText+=token;
+
+
+scrollToBottom();
+
+
+}
+
+
+
+}catch(e){}
+
+
+
+}
+
+
+
+}
+
+
+}
+
+
+
+}catch(error){
+
+
+aiMessage.innerText=
+"Error: "+error.message;
+
+
+}
 
 
 }
@@ -501,35 +606,78 @@ return;
 
 
 
-add(
 
-data.choices[0].message.content,
+function startVoice(){
 
-"ai"
 
-);
+let recognition =
+new webkitSpeechRecognition();
+
+
+
+recognition.lang="en-US";
+
+
+
+recognition.onresult=function(event){
+
+
+document.getElementById("input").value =
+
+event.results[0][0].transcript;
+
+
+};
+
+
+
+recognition.start();
 
 
 
 }
 
-catch(error){
 
 
-add(
 
-"Connection error: "+error.message,
 
-"ai"
+function readFile(){
 
-);
+
+
+let file=
+document.getElementById("file")
+.files[0];
+
+
+
+if(!file)return;
+
+
+
+let reader=new FileReader();
+
+
+
+reader.onload=function(e){
+
+
+fileText=e.target.result;
+
+
+add("File loaded: "+file.name,"ai");
+
+
+};
+
+
+
+reader.readAsText(file);
+
 
 
 }
 
-
-
-}
 
 
 
@@ -538,22 +686,23 @@ add(
 function openSettings(){
 
 
-
 document.getElementById("settingsPanel")
 .classList.add("open");
 
 
 
 document.getElementById("apiKey").value =
-
 localStorage.getItem("or_key") || "";
 
 
 
-
 document.getElementById("model").value =
-
 localStorage.getItem("model") || "openai/gpt-4o-mini";
+
+
+
+document.getElementById("personality").value =
+localStorage.getItem("personality") || "";
 
 
 
@@ -562,13 +711,12 @@ localStorage.getItem("model") || "openai/gpt-4o-mini";
 
 
 
-function closeSettings(){
 
+function closeSettings(){
 
 
 document.getElementById("settingsPanel")
 .classList.remove("open");
-
 
 
 }
@@ -601,15 +749,25 @@ document.getElementById("model").value
 
 
 
+localStorage.setItem(
+
+"personality",
+
+document.getElementById("personality").value
+
+);
+
+
+
 closeSettings();
 
 
 
-alert("Settings saved");
-
+alert("Saved");
 
 
 }
+
 
 
 
@@ -618,9 +776,7 @@ alert("Settings saved");
 function toggleDark(){
 
 
-
 document.body.classList.toggle("dark");
-
 
 
 }
@@ -629,13 +785,7 @@ document.body.classList.toggle("dark");
 
 
 
-add(
-
-"Agent ready.",
-
-"ai"
-
-);
+add("Agent ready.","ai");
 
 
 
@@ -644,5 +794,4 @@ add(
 
 </body>
 
-</html>
-  
+  </html>
